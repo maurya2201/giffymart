@@ -6,18 +6,21 @@ interface Gifs {
     }},
   title: string
 }
-
+sessionStorage.setItem("disabled",JSON.stringify(true));
+const buttonState = JSON.parse(sessionStorage.getItem("disabled")??"false");
+sessionStorage.setItem("limit",JSON.stringify(10));
+let limit = JSON.parse(sessionStorage.getItem("limit")??"0");
+let offset:number = JSON.parse(sessionStorage.getItem("offset")??"0");
 enum StatusCode {
   success = 200,
   notfound = 404
 }
 
-const url: string = `https://api.giphy.com/v1/gifs/trending?api_key=p3AuEIa3Poh0WuTFAVVL8USukT5Sf33M&rating=g&bundle=messaging_non_clips`;
 const listing = document.getElementsByClassName("row")[0];
 
 const getGiffy = async (): Promise<void> => {
   try {
-    const data: Response = await fetch(url);
+    const data: Response = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=9GaVk1p91HoQYGpAnDTcGEYnlXP9Hbyp&limit=${limit}&offset=${offset}&rating=g&bundle=messaging_non_clips`);
     if (data.status === StatusCode.success) {
       const giffy = await data.json();
       const gifs: Gifs[] = giffy.data;
@@ -48,7 +51,7 @@ const search = document.getElementsByName("search")[0] as HTMLInputElement;
 search.addEventListener('change', async (event): Promise<void> => {
   try {
     const value = (event.target as HTMLInputElement).value;
-    const data: Response = await fetch(url);
+    const data: Response = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=9GaVk1p91HoQYGpAnDTcGEYnlXP9Hbyp&rating=g&bundle=messaging_non_clips`);
     if (data.status === StatusCode.success) {
       const giffy = await data.json();
       const gifs: Gifs[] = giffy.data;
@@ -78,3 +81,24 @@ search.addEventListener('change', async (event): Promise<void> => {
 function getGif(id: string):void{
   location.href = `gifview.html?id=${id}`;
 }
+
+const nextButton = document.getElementById("next") as HTMLButtonElement;
+nextButton.addEventListener("click",()=>{
+  if(offset===50){
+    nextButton.disabled=buttonState;
+  }else{
+  sessionStorage.setItem("offset",JSON.stringify(offset+10));
+    alert(`Loading next data!`);
+    location.reload();
+  }
+});
+const previousButton = document.getElementById("previous") as HTMLButtonElement;
+previousButton.addEventListener("click",()=>{
+  if(offset===10){
+    previousButton.disabled=buttonState;
+  }else{
+  sessionStorage.setItem("offset",JSON.stringify(offset-10));
+  alert(`Loading previous data!`);
+  location.reload();
+  }
+})
